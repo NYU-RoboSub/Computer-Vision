@@ -1,0 +1,134 @@
+import os
+from PIL import Image
+from PIL import ImageOps
+
+class ImageProcessing:
+
+    operation = {"FLIP_LEFT_RIGHT": Image.FLIP_LEFT_RIGHT,
+        "FLIP_TOP_BOTTOM": Image.FLIP_TOP_BOTTOM,
+        "ROTATE_90": Image.ROTATE_90,
+        "ROTATE_180": Image.ROTATE_180,
+        "ROTATE_270": Image.ROTATE_270,
+        "TRANSPOSE": Image.TRANSPOSE, 
+        "TRANSVERSE": Image.TRANSVERSE}
+
+    def __init__(self, fpath, ftype = ".jpeg"):
+        self.fpath = fpath
+        self.ftype = ftype
+    
+    def changeSelfFtype(self, ftype):
+        self.ftype = ftype
+
+    def changeFtype_Karenna(self, folderName = "jpeg_Photo"):
+        folderName = self.makeFolder(folderName)
+
+        for image in os.listdir(self.fpath):
+            lst = image.split(".")
+            imageName = self.fpath + "/" + image
+            imageFile = Image.open(imageName)
+            image = lst[0] + ".jpeg"
+            imageFile.save(folderName + "/" + image)
+
+    def makeFolder(self, folderName):
+        if "/" not in folderName: 
+            index = -1
+            for i in range(0,3):
+                index = self.fpath.find("/", index + 1)
+            folderName = self.fpath[:index + 1] + "Desktop/" + folderName
+        os.mkdir(folderName)
+        return folderName
+
+    def Flip(self, folderName = "Flipped Images"):
+        folderName = self.makeFolder(folderName)
+        
+        count = 1
+        for image in os.listdir(self.fpath):
+            imageName = self.fpath + "/" + image
+            try: 
+                image = Image.open(imageName)
+            except:
+                continue
+            newImage = ImageOps.flip(image)
+            filename = os.path.join(folderName, str(count) + self.ftype) 
+            newImage.save(filename)
+            print(filename)
+            count += 1
+
+    def Mirror(self, folderName = "Mirror Images"):
+        folderName = self.makeFolder(folderName)
+        
+        count = 1
+        for image in os.listdir(self.fpath):
+            imageName = self.fpath + "/" + image
+            try: 
+                image = Image.open(imageName)
+            except:
+                continue
+            newImage = ImageOps.mirror(image)
+            filename = os.path.join(folderName, str(count) + self.ftype) 
+            print(filename)
+            count += 1
+
+    def trans(self, ops, folderName = ""):
+        if folderName == "":
+            folderName = ops[0:1] + ops[1:].lower().replace("_", " ")
+        folderName = self.makeFolder(folderName)
+
+        count = 1
+        for image in os.listdir(self.fpath):
+            imageName = self.fpath + "/" + image
+            try: 
+                image = Image.open(imageName)
+            except:
+                continue
+            newImage = image.transpose(self.operation.get(ops))
+            filename = os.path.join(folderName, str(count) + self.ftype) 
+            newImage.save(filename)
+            print(filename)
+            count += 1
+
+    def test(self):
+        lst = self.operation.keys()
+
+        for i in lst:
+            print(i)
+
+    def all_ops(self, folderName = "Altered Images"):
+        folderName = self.makeFolder(folderName)
+
+        self.Mirror(folderName + "/Mirrored images")
+        self.Flip(folderName + "/Flipped images")
+
+        lst = self.operation.keys()
+        for i in lst:
+            fname = folderName + "/" + i
+            self.trans(i, fname)
+
+
+'''
+"FLIP_LEFT_RIGHT": Image.FLIP_LEFT_RIGHT,
+"FLIP_TOP_BOTTOM": Image.FLIP_TOP_BOTTOM,
+"ROTATE_90": Image.ROTATE_90,
+"ROTATE_180": Image.ROTATE_180,
+"ROTATE_270": Image.ROTATE_270,
+"TRANSPOSE": Image.TRANSPOSE, 
+"TRANSVERSE": Image.TRANSVERSE
+'''
+
+p1 = ImageProcessing("/Users/wng/Desktop/All Classes/RoboSub/Original") 
+# enter the path of the folder and file format you want to save
+# default file format is .jpeg
+
+#p1.Flip("Altered Images_1") 
+# enter new folder name
+# altered images will be save on your desktop
+
+#p1.Mirror("Altered Images_2")
+# enter new folder name
+# altered images will be save on your desktop
+
+#p1.trans("FLIP_LEFT_RIGHT", "Altered Images_3")
+# enter the name of the method and new folder name
+# altered images will be save on your desktop
+
+p1.all_ops()
